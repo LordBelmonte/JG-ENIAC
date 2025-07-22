@@ -54,13 +54,11 @@
 }
 
 .subtitle{
-  text-align: center;
-  font-size: 14px;
-  color: #ccc;
-  margin-top: -20px;
-  margin-bottom: 25px;
-  letter-spacing: 1.5px;
-  font-weight: bold;
+  width: 100%;
+  height: 150px;
+  display: flex;
+  justify-items: center;
+
 }
 
 .pingpong-title {
