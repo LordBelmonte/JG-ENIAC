@@ -1,3 +1,4 @@
+// FASE 1 - Fácil
 const canvas = document.getElementById("ping");
 const ctx = canvas.getContext("2d");
 
@@ -9,13 +10,13 @@ const paddleHeight = 100;
 const leftPaddle = {
   x: 10,
   y: canvas.height / 2 - paddleHeight / 2,
-  speed: 6,
+  speed: 5,
   score: 0,
 };
 const rightPaddle = {
   x: canvas.width - paddleWidth - 10,
   y: canvas.height / 2 - paddleHeight / 2,
-  speed: 6,
+  speed: 3,
   score: 0,
 };
 
@@ -23,39 +24,43 @@ const ball = {
   x: canvas.width / 2,
   y: canvas.height / 2,
   radius: 8,
-  dx: 5,
-  dy: 5,
+  dx: 4,
+  dy: 4,
 };
 
 const keys = {};
 document.addEventListener("keydown", (e) => keys[e.key] = true);
 document.addEventListener("keyup", (e) => keys[e.key] = false);
 
-// Função para mover a raquete esquerda com o teclado
 function movePaddles() {
   if (keys["w"] && leftPaddle.y > 0) leftPaddle.y -= leftPaddle.speed;
   if (keys["s"] && leftPaddle.y + paddleHeight < canvas.height) leftPaddle.y += leftPaddle.speed;
-
-  // A raquete direita (AI) agora se move automaticamente
   moveRightPaddleAI();
 }
 
-// Função para a IA controlar a raquete direita
 function moveRightPaddleAI() {
-  if (ball.y < rightPaddle.y + paddleHeight / 2) {
-    // Se a bola estiver acima da raquete, mova para cima
-    if (rightPaddle.y > 0) {
-      rightPaddle.y -= rightPaddle.speed;
-    }
-  } else if (ball.y > rightPaddle.y + paddleHeight / 2) {
-    // Se a bola estiver abaixo da raquete, mova para baixo
-    if (rightPaddle.y + paddleHeight < canvas.height) {
-      rightPaddle.y += rightPaddle.speed;
-    }
+  const targetY = ball.y - paddleHeight / 2;
+
+  const reactionFactor = 0.08;   // antes 0.05 → IA reage um pouco mais rápido
+  const errorRange = 30;         // antes 50 → menos erro aleatório
+  const missChance = 0.1;        // antes 0.2 → erra menos vezes
+
+  let adjustedTarget = targetY;
+
+  if (Math.random() < missChance) {
+    adjustedTarget += 80 * (Math.random() > 0.5 ? 1 : -1);
+  } else {
+    adjustedTarget += (Math.random() - 0.5) * errorRange;
   }
+
+  rightPaddle.y += (adjustedTarget - rightPaddle.y) * reactionFactor;
+
+  if (rightPaddle.y < 0) rightPaddle.y = 0;
+  if (rightPaddle.y + paddleHeight > canvas.height)
+    rightPaddle.y = canvas.height - paddleHeight;
 }
 
-// Função para mover a bola
+
 function moveBall() {
   ball.x += ball.dx;
   ball.y += ball.dy;
@@ -64,7 +69,6 @@ function moveBall() {
     ball.dy *= -1;
   }
 
-  // Colisão com raquete esquerda
   if (
     ball.x - ball.radius < leftPaddle.x + paddleWidth &&
     ball.y > leftPaddle.y &&
@@ -74,7 +78,6 @@ function moveBall() {
     ball.x = leftPaddle.x + paddleWidth + ball.radius;
   }
 
-  // Colisão com raquete direita (IA)
   if (
     ball.x + ball.radius > rightPaddle.x &&
     ball.y > rightPaddle.y &&
@@ -84,7 +87,6 @@ function moveBall() {
     ball.x = rightPaddle.x - ball.radius;
   }
 
-  // Pontuação e reset
   if (ball.x < 0) {
     rightPaddle.score++;
     resetBall();
@@ -97,9 +99,17 @@ function moveBall() {
 function resetBall() {
   ball.x = canvas.width / 2;
   ball.y = canvas.height / 2;
-  ball.dx *= -1;
-  ball.dy = 5 * (Math.random() > 0.5 ? 1 : -1);
+
+  const initialSpeed = 3.5; // 🔥 velocidade inicial ligeiramente maior
+
+  const angle = Math.random() * Math.PI / 4 - Math.PI / 8;
+  const direction = Math.random() > 0.5 ? 1 : -1;
+
+  ball.dx = Math.cos(angle) * initialSpeed * direction;
+  ball.dy = Math.sin(angle) * initialSpeed;
 }
+
+
 
 function drawRoundedPaddle(x, y, width, height, radius, color) {
   ctx.fillStyle = color;
@@ -126,12 +136,11 @@ function drawScore() {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   drawRoundedPaddle(leftPaddle.x, leftPaddle.y, paddleWidth, paddleHeight, 10, "#6d45c2");
   drawRoundedPaddle(rightPaddle.x, rightPaddle.y, paddleWidth, paddleHeight, 10, "#1b3ae7");
 
   ctx.beginPath();
-  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 999);
+  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
   ctx.fillStyle = "#fff";
   ctx.fill();
   ctx.closePath();
@@ -147,4 +156,3 @@ function gameLoop() {
 }
 
 gameLoop();
-
