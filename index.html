@@ -15,27 +15,55 @@
     <header>
       <h2>Escolha o Modo de Jogo</h2>
     </header>
-    <section class="card-container">
+
+    <!--Primeira seleção: 2 Jogadores ou Contra a Máquina-->
+    <section id="modo-jogo" class="card-container">
       <article class="card" onclick="startGame('playerVsPlayer')">
         <figure>
-          <img src="./assets/PLAYER VS PLAYER.png" alt="Dois Jogadores" />
-          <button onclick="escolherModo('playerVsPlayer')">2 Jogadores</button>
+          <img src="./assets/PLAYER VS PLAYER.png" alt="Dois Jogadores" onclick="escolherModo('playerVsPlayer')" />
         </figure>
         <h3>2 Jogadores</h3>
         <p>Desafie um amigo localmente</p>
       </article>
-
-      <article class="card" onclick="startGame('playerVsBot')">
+      
+      <!-- Segunda seleção: Jogar contra a máquina -->
+      <article class="card" onclick="mostrarNiveisBot()">
         <figure>
-          <img src="./assets/PLAYER VS BOT.png" alt="Contra a Máquina" />
-          <button onclick="escolherModo('playerVsBot')">Contra Máquina</button>
+          <img src="./assets/PLAYER VS BOT.png" alt="Contra a Máquina" onclick="escolherModo('playerVsBot')" />
         </figure>
         <h3>Contra a Máquina</h3>
         <p>Jogue contra a inteligência artificial</p>
       </article>
     </section>
+
+    <!-- 🔸 Novo bloco de dificuldade do bot -->
+    <section id="dificuldade-bot" hidden>
+      <h2>Escolha a Dificuldade</h2>
+        <section class="cards">
+          <button onclick="iniciarBot('easy')">
+            <strong>Fácil</strong>
+            <p>Ideal para iniciantes</p>
+          </button>
+
+          <button onclick="iniciarBot('medium')">
+            <strong>Médio</strong>
+            <p>Um desafio equilibrado</p>
+          </button>
+
+          <button onclick="iniciarBot('hard')">
+            <strong>Difícil</strong>
+            <p>Somente para os melhores</p>
+          </button>
+
+          <button onclick="voltarModoJogo()" style="margin-top: 20px;">
+            <img src="back-icon.png" alt="Voltar" width="24" /> Voltar
+          </button>
+      </section>
+    </section>
+
+
     <footer>
-      <button onclick="fecharModal()">Fechar</button>
+      <button class="close-modal" onclick="fecharModal()">Fechar</button>
     </footer>
   </section>
 </section>
