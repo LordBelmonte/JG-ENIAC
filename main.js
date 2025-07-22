@@ -146,6 +146,7 @@ function gameLoop() {
 // Modal campanha
 document.getElementById("btnCampanha").addEventListener("click", () => {
   document.getElementById("modalCampanha").classList.remove("hidden");
+  
   pauseGame();
 });
 
@@ -153,25 +154,67 @@ function fecharModal() {
   document.getElementById("modalCampanha").classList.add("hidden");
 }
 
-// Escolha do modo
+// Mostrar/voltar níveis de bot
+function mostrarNiveisBot() {
+  document.getElementById("modo-jogo").hidden = true;
+  document.getElementById("dificuldade-bot").hidden = false;
+}
+function voltarModoJogo() {
+  document.getElementById("modo-jogo").hidden = false;
+  document.getElementById("dificuldade-bot").hidden = true;
+}
+
+// Escolher modo de jogo (PvP ou bot)
 function escolherModo(modo) {
   gameMode = modo;
-  fecharModal();
+  if (modo === "playerVsBot") {
+    mostrarNiveisBot();
+  } else {
+    fecharModal();
+    reiniciarJogo();
+    startGameLoop();
+  }
+}
 
-  // Reinicia placar e posição
+// Escolher dificuldade e carregar script correspondente
+function escolherDificuldade(dificuldade) {
+  fecharModal();
+  voltarModoJogo();
+
+  const scriptAntigo = document.getElementById("botScript");
+  if (scriptAntigo) scriptAntigo.remove();
+
+  const script = document.createElement("script");
+  script.src = `${dificuldade}.js`; // easy.js, medium.js, hard.js
+  script.id = "botScript";
+  document.body.appendChild(script);
+
+  reiniciarJogo();
+  startGameLoop();
+}
+
+// Reinicia placar e posição
+function reiniciarJogo() {
   leftPaddle.score = 0;
   rightPaddle.score = 0;
+  leftPaddle.y = canvas.height / 2 - paddleHeight / 2;
+  rightPaddle.y = canvas.height / 2 - paddleHeight / 2;
   resetBall();
+}
 
-  // Se for modo bot, carrega o script do bot
-  if (modo === "playerVsBot") {
-    if (!document.getElementById("botScript")) {
-      const script = document.createElement("script");
-      script.src = "easy.js";
-      script.id = "botScript";
-      document.body.appendChild(script);
-    }
+function iniciarBot(dificuldade) {
+  fecharModal(); // já está em uso no botão fechar, aproveitamos
+  if (dificuldade === 'easy') {
+    const script = document.createElement('script');
+    script.src = 'easy.js';
+    document.body.appendChild(script);
+  } else if (dificuldade === 'medium') {
+    const script = document.createElement('script');
+    script.src = 'medium.js';
+    document.body.appendChild(script);
+  } else if (dificuldade === 'hard') {
+    const script = document.createElement('script');
+    script.src = 'hard.js';
+    document.body.appendChild(script);
   }
-
-  startGameLoop();
 }
