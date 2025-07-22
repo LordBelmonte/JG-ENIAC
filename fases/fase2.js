@@ -1,104 +1,97 @@
-// Obtém o canvas e contexto de desenho
+// FASE 2 - Média
 const canvas = document.getElementById("ping");
 const ctx = canvas.getContext("2d");
 
-// Define o tamanho do canvas
 canvas.width = 800;
 canvas.height = 600;
 
-// Tamanho das raquetes
 const paddleWidth = 15;
-const paddleHeight = 100;
-
-// Raquete da esquerda (jogador)
+const paddleHeight = 90;
 const leftPaddle = {
   x: 10,
   y: canvas.height / 2 - paddleHeight / 2,
   speed: 6,
   score: 0,
 };
-
-// Raquete da direita (IA mais difícil)
 const rightPaddle = {
   x: canvas.width - paddleWidth - 10,
   y: canvas.height / 2 - paddleHeight / 2,
-  speed: 7.5, // Mais rápida que o jogador
+  speed: 6,
   score: 0,
 };
 
-// Bola do jogo
 const ball = {
   x: canvas.width / 2,
   y: canvas.height / 2,
   radius: 8,
-  dx: 6, // velocidade horizontal
-  dy: 6, // velocidade vertical
+  dx: 0,
+  dy: 0,
 };
 
-// Teclas pressionadas
 const keys = {};
 document.addEventListener("keydown", (e) => keys[e.key] = true);
 document.addEventListener("keyup", (e) => keys[e.key] = false);
 
-// Movimento da raquete esquerda (jogador)
 function movePaddles() {
-  if (keys["w"] && leftPaddle.y > 0) {
-    leftPaddle.y -= leftPaddle.speed;
-  }
-  if (keys["s"] && leftPaddle.y + paddleHeight < canvas.height) {
-    leftPaddle.y += leftPaddle.speed;
-  }
-
-  // IA controla a raquete da direita
+  if (keys["w"] && leftPaddle.y > 0) leftPaddle.y -= leftPaddle.speed;
+  if (keys["s"] && leftPaddle.y + paddleHeight < canvas.height) leftPaddle.y += leftPaddle.speed;
   moveRightPaddleAI();
 }
 
-// IA mais difícil: segue a bola com velocidade aumentada
 function moveRightPaddleAI() {
-  // A IA só reage se a bola estiver se movendo na direção dela
-  if (ball.dx > 0) {
-    const paddleCenter = rightPaddle.y + paddleHeight / 2;
+  const targetY = ball.y - paddleHeight / 2;
 
-    // Adiciona um "limiar" para suavizar o movimento (evita jitter)
-    if (ball.y < paddleCenter - 10 && rightPaddle.y > 0) {
-      rightPaddle.y -= rightPaddle.speed;
-    } else if (ball.y > paddleCenter + 10 && rightPaddle.y + paddleHeight < canvas.height) {
-      rightPaddle.y += rightPaddle.speed;
-    }
+  const reactionFactor = 0.12;  // mais rápido que a fase 1
+  const errorRange = 15;        // menos erro
+  const missChance = 0.05;      // raramente erra de propósito
+
+  let adjustedTarget = targetY;
+
+  if (Math.random() < missChance) {
+    adjustedTarget += 60 * (Math.random() > 0.5 ? 1 : -1);
+  } else {
+    adjustedTarget += (Math.random() - 0.5) * errorRange;
   }
+
+  rightPaddle.y += (adjustedTarget - rightPaddle.y) * reactionFactor;
+
+  if (rightPaddle.y < 0) rightPaddle.y = 0;
+  if (rightPaddle.y + paddleHeight > canvas.height)
+    rightPaddle.y = canvas.height - paddleHeight;
 }
 
-// Movimenta a bola e verifica colisões
 function moveBall() {
   ball.x += ball.dx;
   ball.y += ball.dy;
 
-  // Rebater na parte superior/inferior
+  // colisão com topo e base
   if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
-    ball.dy *= -1; // Inverte direção vertical
+    ball.dy *= -1;
   }
 
-  // Colisão com raquete esquerda
+  // colisão com raquete do jogador
   if (
     ball.x - ball.radius < leftPaddle.x + paddleWidth &&
     ball.y > leftPaddle.y &&
     ball.y < leftPaddle.y + paddleHeight
   ) {
-    ball.dx *= -1; // Inverte direção horizontal
+    ball.dx *= -1.05; // acelera a bola a cada batida
+    ball.dy *= 1.05;
     ball.x = leftPaddle.x + paddleWidth + ball.radius;
   }
 
-  // Colisão com raquete direita (IA)
+  // colisão com raquete da IA
   if (
     ball.x + ball.radius > rightPaddle.x &&
     ball.y > rightPaddle.y &&
     ball.y < rightPaddle.y + paddleHeight
   ) {
-    ball.dx *= -1;
+    ball.dx *= -1.05;
+    ball.dy *= 1.05;
     ball.x = rightPaddle.x - ball.radius;
   }
 
-  // Pontuação e reinício
+  // pontuação
   if (ball.x < 0) {
     rightPaddle.score++;
     resetBall();
@@ -108,15 +101,20 @@ function moveBall() {
   }
 }
 
-// Reseta a bola para o centro e muda a direção
 function resetBall() {
   ball.x = canvas.width / 2;
   ball.y = canvas.height / 2;
-  ball.dx *= -1;
-  ball.dy = 6 * (Math.random() > 0.5 ? 1 : -1);
+
+  const initialSpeed = 3.5; // 🔥 velocidade inicial ligeiramente maior
+
+  const angle = Math.random() * Math.PI / 4 - Math.PI / 8;
+  const direction = Math.random() > 0.5 ? 1 : -1;
+
+  ball.dx = Math.cos(angle) * initialSpeed * direction;
+  ball.dy = Math.sin(angle) * initialSpeed;
 }
 
-// Desenha uma raquete com cantos arredondados
+
 function drawRoundedPaddle(x, y, width, height, radius, color) {
   ctx.fillStyle = color;
   ctx.beginPath();
@@ -133,7 +131,6 @@ function drawRoundedPaddle(x, y, width, height, radius, color) {
   ctx.fill();
 }
 
-// Desenha o placar no centro da tela
 function drawScore() {
   ctx.fillStyle = "#fff";
   ctx.font = "60px Arial";
@@ -141,33 +138,26 @@ function drawScore() {
   ctx.fillText(`${leftPaddle.score}   ✦   ${rightPaddle.score}`, canvas.width / 2, 300);
 }
 
-// Desenha todos os elementos do jogo
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Raquetes
   drawRoundedPaddle(leftPaddle.x, leftPaddle.y, paddleWidth, paddleHeight, 10, "#6d45c2");
   drawRoundedPaddle(rightPaddle.x, rightPaddle.y, paddleWidth, paddleHeight, 10, "#1b3ae7");
 
-  // Bola
   ctx.beginPath();
   ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
   ctx.fillStyle = "#fff";
   ctx.fill();
   ctx.closePath();
 
-  // Placar
   drawScore();
 }
 
-// Loop principal do jogo (atualiza tudo a cada frame)
 function gameLoop() {
   movePaddles();
   moveBall();
   draw();
-  requestAnimationFrame(gameLoop); // Chama o próximo frame
+  requestAnimationFrame(gameLoop);
 }
 
-// Inicia o jogo
+resetBall();
 gameLoop();
-
