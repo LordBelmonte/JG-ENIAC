@@ -39,24 +39,30 @@
     <!-- 🔸 Novo bloco de dificuldade do bot -->
     <section id="dificuldade-bot" hidden>
       <h2>Escolha a Dificuldade</h2>
-        <section class="cards">
+        <section class="difficulty-buttons">
           <button onclick="iniciarBot('easy')">
+            
+            <figure>
+              <img src="./assets/easy.png" alt="">
             <strong>Fácil</strong>
             <p>Ideal para iniciantes</p>
+            </figure>
           </button>
 
           <button onclick="iniciarBot('medium')">
+            <figure>
+              <img src="./assets/medium.png" alt="">
             <strong>Médio</strong>
             <p>Um desafio equilibrado</p>
+            </figure>
           </button>
 
           <button onclick="iniciarBot('hard')">
+            <figure>
+              <img src="./assets/hard.png" alt="">
             <strong>Difícil</strong>
             <p>Somente para os melhores</p>
-          </button>
-
-          <button onclick="voltarModoJogo()" style="margin-top: 20px;">
-            <img src="back-icon.png" alt="Voltar" width="24" /> Voltar
+            </figure>
           </button>
       </section>
     </section>
@@ -71,7 +77,6 @@
 <body>
 
     <!-- 🔵 INÍCIO DO MENU LATERAL -->
-  <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
   <aside class="sidebar">
     <h2 class="pingpong-title">
       <img src="./assets/pingpong-icon.jpeg" class="pingpong" alt="icon"/>
@@ -79,15 +84,17 @@
       <img src="./assets/pingpong-icon.jpeg" class="pingpong" alt="icon" />
     </h2>
     
-    <img class="subtitle" src="/assets/ChatGPT Image 21 de jul. de 2025, 18_07_54.png">
+    <img class="subtitle" src="/assets/logo.png">
     <ul>
       <!-- Removido: <li><a href="#" onclick="alert('Você clicou em Início')">🏠 Início</a></li> -->
-      <li><a href="#" id="btnCampanha" class="menu-link campanha">🎮 Campanha</a></li>
+      <li><a href="#" id="btnCampanha" class="menu-link campanha" onclick="liberarAudio()" >🎮 Campanha</a></li>
       <li><a href="#" class="menu-link opcoes" onclick="alert('Abrindo Opções')">⚙️ Opções</a></li>
       <li><a href="#" class="menu-link creditos" onclick="alert('Créditos do jogo')">💳 Créditos</a></li>
       <li><a href="#" id="btnSair" class="menu-link sair" onclick="alert('Você saiu do jogo')">🚪 Sair</a></li>
     </ul>
   </aside>
+  <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+  
   <!-- 🔵 FIM DO MENU LATERAL -->
 
   <header>
@@ -95,12 +102,14 @@
   </header>
 
   <main class="container">
-    <video class="video-slide" src="/assets/5453622-uhd_3840_2160_24fps.mp4" muted autoplay loop></video>
+    <video class="video-slide" src="/assets/fundo.mp4" muted autoplay loop></video>
     <canvas id="ping"></canvas>
+    <audio src="somColisão" src="/colisao.wav" preload="auto" ></audio>
 
     
   </main>
 
   <script src="main.js"></script>
+  <script src="som.js"></script>
 </body>
 </html>
