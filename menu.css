@@ -1,15 +1,30 @@
+:root {
+  --cor-primaria: #60519b;
+  --cor-secundaria: #1c202c;
+  --cor-terciaria: #31323e;
+  --cor-quaternaria: #BFC0D1;
+  --cor-fundo: #1c202c;
+  --cor-clara: #BFC0D1;
+  --cor-texto: #ffffff;
+  --cor-hover: #3d3d70;
+}
+
+body {
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
 .sidebar {
   position: fixed;
-  width: 220px;
+  width: 245px;
   height: 100%;
-  background: #2c2c54;
-  padding: 20px;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.3);
-
+  background: var(--cor-secundaria);
+  padding: 25px;
+  box-shadow: 2px 0 10px var(--cor-primaria);
 }
 
 .sidebar h2 {
-  color: #fff;
+  color: var(--cor-texto);
   margin-bottom: 30px;
   text-align: center;
 }
@@ -24,23 +39,23 @@
 }
 
 .sidebar ul li a {
-  color: #fff;
+  color: var(--cor-quaternaria);
   text-decoration: none;
   font-size: 18px;
   display: flex;
   padding: 10px;
-  border-radius: 4px;
+  border-radius: 12px;
   transition: 0.3s;
 }
 
 .sidebar ul li a:hover {
-  background-color: #575fcf;
+  background: linear-gradient(30deg, var(--cor-fundo), var(--cor-quaternaria));
 }
 
 .main-content {
   margin-left: 20px;
   height: 100vh;
-  background: radial-gradient(#2f2f4f, #1a1a1a);
+  background: radial-gradient(var(--cor-terciaria), var(--cor-secundaria));
   display: flex;
   justify-content: center;
   align-items: center;
@@ -53,49 +68,51 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-.subtitle{
+.subtitle {
   width: 100%;
   height: 150px;
   display: flex;
   justify-items: center;
-
 }
 
 .pingpong-title {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px; /* Espaçamento entre os elementos */
+  gap: 8px;
 }
 
 .pingpong-title span {
   font-size: 22px;
   font-weight: bold;
-  color: #fff;
+  color: var(--cor-texto);
 }
 
 .pingpong {
   width: 24px;
   height: 24px;
+  border: 1px solid var(--cor-quaternaria);
+  border-radius: 25%;
+  box-shadow: 0 0 10px var(--cor-quaternaria);
 }
 
-/* começo da animação */
+/* 🎮 Animações dos itens do menu */
 .menu-link {
-  color: #fff;
+  color: var(--cor-secundaria);
   text-decoration: none;
   font-size: 18px;
   display: flex;
   align-items: center;
   padding: 10px;
-  border-radius: 4px;
   transition: 0.3s ease-in-out;
+  border: 4px solid var(--cor-hover);
+  box-shadow: 0px 0px 4px var(--cor-primaria);
 }
 
 .menu-link:hover {
-  background-color: #3d3d70;
+  background-color: var(--cor-terciaria);
 }
 
-/* 🎮 Campanha: animação de pulsar */
 .campanha:hover {
   animation: pulse 0.6s ease-in-out;
 }
@@ -106,7 +123,6 @@
   100% { transform: scale(1); }
 }
 
-/* ⚙️ Opções: rotação suave */
 .opcoes:hover {
   animation: rotateIcon 0.6s ease-in-out;
 }
@@ -117,13 +133,11 @@
   100% { transform: rotate(0deg); }
 }
 
-/* 💳 Créditos: brilho neon */
 .creditos:hover {
-  box-shadow: 0 0 10px #00ffe0, 0 0 20px #00ffe0;
-  text-shadow: 0 0 5px #00ffe0;
+  box-shadow: 0 0 10px var(--cor-fundo), 0 0 20px var(--cor-neon);
+  text-shadow: 0 0 5px var(--cor-fundo);
 }
 
-/* 🚪 Sair: leve vibração */
 .sair:hover {
   animation: shake 0.3s;
 }
@@ -135,9 +149,8 @@
   75% { transform: translateX(-2px); }
   100% { transform: translateX(0); }
 }
-/* final da animação */
 
-/* Botão hamburguer visível apenas no mobile */
+/* Menu mobile */
 .menu-toggle {
   display: none;
   position: fixed;
@@ -146,12 +159,11 @@
   font-size: 28px;
   background: none;
   border: none;
-  color: white;
+  color: var(--cor-texto);
   cursor: pointer;
   z-index: 10;
 }
 
-/* Sidebar oculta no mobile */
 @media screen and (max-width: 1200px) {
   .sidebar {
     transform: translateX(-100%);
@@ -175,38 +187,36 @@
     margin-left: 50px;
   }
 
-
   video.video-slide {
     position: absolute;
     z-index: -1;
   }
 }
 
+/* 🎯 Botão "Campanha" */
 #btnCampanha {
-  background-color: #4422aa; /* cor base */
-  color: #fff;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
   font-family: 'Press Start 2P', cursive;
   font-size: 14px;
   padding: 12px 24px;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--cor-hover);
   border-radius: 12px;
+  box-shadow: 0px 0px 4px var(--cor-primaria);
   cursor: pointer;
-  box-shadow: 4px 4px 0 #000;
   transition: 0.2s ease;
   text-transform: uppercase;
 }
 
 #btnCampanha:hover {
-  background-color: #6a40ff;
-  color: #ffeb3b;
-  box-shadow: 2px 2px 0 #000;
+  background-color: var(--cor-botao-hover);
+  color: var(--cor-fundo);
+  box-shadow: 2px 2px 0 var(--cor-sombra-botao);
   transform: translateY(2px);
 }
 
 #btnCampanha:active {
-  background-color: #220088;
+  background-color: var(--cor-botao-ativo);
   box-shadow: none;
   transform: translateY(4px);
 }
-
-/* Exibe o menu lateral quando o botão hamburguer é clicado */
