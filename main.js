@@ -258,4 +258,15 @@ function iniciarBot(dificuldade) {
   document.body.appendChild(script);
 }
 
+function sairDoJogo() {
+  if (confirm("Tem certeza que quer sair do jogo?")) {
+    // Abre o Google com uma pesquisa vazia (página inicial)
+    window.open("https://www.google.com", "_blank");
+    
+    // Se quiser abrir já com um termo pesquisado, por exemplo "ping pong":
+    // window.open("https://www.google.com/search?q=ping+pong", "_blank");
+  }
+}
+
+
 
