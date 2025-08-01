@@ -88,10 +88,16 @@
     <ul>
       <!-- Removido: <li><a href="#" onclick="alert('Você clicou em Início')">🏠 Início</a></li> -->
       <li><a href="#" id="btnCampanha" class="menu-link campanha" onclick="liberarAudio()" >🎮 Campanha</a></li>
-      <li><a href="#" class="menu-link opcoes" onclick="alert('Abrindo Opções')">⚙️ Opções</a></li>
+      <li><a href="#" class="menu-link opcoes" onclick="mostrarOpcoes()">⚙️ Opções</a></li>
       <li><a href="#" class="menu-link creditos" onclick="alert('Créditos do jogo')">💳 Créditos</a></li>
       <li><a href="#" id="btnSair" class="menu-link sair" onclick="sairDoJogo()">🚪 Sair</a></li>
     </ul>
+
+    <ul id="menu-opcoes" style="display: none;">
+      <li><a href="#" id="botaoSom" onclick="alternarSom()">🔊 Som</a></li>
+      <li><a href="#" onclick="voltarMenu()">🔙 Voltar</a></li>
+    </ul>
+
   </aside>
   <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
   
