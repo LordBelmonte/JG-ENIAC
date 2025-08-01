@@ -268,5 +268,16 @@ function sairDoJogo() {
   }
 }
 
+function abrirCreditos() {
+  document.getElementById("modalCreditos").classList.remove("hidden");
+}
+
+function fecharCreditos(event) {
+  const modal = document.getElementById("modalCreditos");
+  // Fecha apenas se clicou fora do conteúdo ou no botão "X"
+  if (modalCreditos) {
+    modalCreditos.classList.add('hidden');
+  }
+}
 
 
