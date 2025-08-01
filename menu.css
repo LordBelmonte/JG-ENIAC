@@ -220,3 +220,31 @@ body {
   box-shadow: none;
   transform: translateY(4px);
 }
+
+.creditos-texto {
+  margin-top: 20px;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.creditos-texto ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+.creditos-texto li {
+  margin: 8px 0;
+  background-color: var(--cor-terciaria);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.creditos-texto p {
+  margin-top: 10px;
+}
+
+.modal-content h2 {
+  margin-bottom: 15px;
+  color: var(--cor-primaria);
+}
