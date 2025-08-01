@@ -6,6 +6,7 @@ somColisao.preload = "auto";
 const musicaCampanha = new Audio("musica.mp3");
 musicaCampanha.preload = "auto";
 musicaCampanha.volume = 0.4;
+musicaCampanha.loop = true; // ← Faz a música repetir automaticamente
 
 // 🔁 Função chamada ao clicar em "Campanha"
 function liberarAudio() {
@@ -50,4 +51,5 @@ function alternarSom() {
 
   somAtivo = !somAtivo;
 }
+
 
