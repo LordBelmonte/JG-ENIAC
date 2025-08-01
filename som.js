@@ -9,14 +9,15 @@ musicaCampanha.volume = 0.4;
 
 // 🔁 Função chamada ao clicar em "Campanha"
 function liberarAudio() {
-  // Libera o som (exigido por navegadores modernos)
   somColisao.play();
   somColisao.pause();
 
-  // Toca a música da campanha
-  musicaCampanha.play().catch((err) => {
-    console.warn("Erro ao tocar a música da campanha:", err);
-  });
+  // Só toca se o som estiver ativado
+  if (somAtivo) {
+    musicaCampanha.play().catch((err) => {
+      console.warn("Erro ao tocar a música da campanha:", err);
+    });
+  }
 }
 
 function mostrarOpcoes() {
