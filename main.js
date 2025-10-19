@@ -20,7 +20,7 @@ function toggleSidebar() {
 const paddleWidth = 15;
 const paddleHeight = 100;
 const leftPaddle = { x: 10, y: canvas.height / 2 - paddleHeight / 2, speed: 6, score: 0 };
-const rightPaddle = { x: canvas.width - paddleWidth - 10, y: canvas.height / 2 - paddleHeight / 2, speed: 6, score: 0 };
+const rightPaddle = { x: canvas.width - paddleWidth - 10, y: canvas.height / 2 - paddleHeight / 2, speed: 6, score: 0, height: paddleHeight };
 const ball = { x: canvas.width / 2, y: canvas.height / 2, radius: 8, dx: 5, dy: 5 };
 
 // Movimento das raquetes
@@ -31,12 +31,12 @@ function movePaddles() {
     if (keysPressed["ArrowUp"] && rightPaddle.y > 0) rightPaddle.y -= rightPaddle.speed;
     if (keysPressed["ArrowDown"] && rightPaddle.y + paddleHeight < canvas.height) rightPaddle.y += rightPaddle.speed;
   } else if (gameMode === "playerVsBot") {
-    // Jogador 1
     if (keysPressed["w"] && leftPaddle.y > 0) leftPaddle.y -= leftPaddle.speed;
     if (keysPressed["s"] && leftPaddle.y + paddleHeight < canvas.height) leftPaddle.y += leftPaddle.speed;
-    // Bot
-    if (ball.y < rightPaddle.y + paddleHeight / 2) rightPaddle.y -= rightPaddle.speed * 0.85;
-    else if (ball.y > rightPaddle.y + paddleHeight / 2) rightPaddle.y += rightPaddle.speed * 0.85;
+
+    if (typeof atualizarBot === "function") {
+      atualizarBot(rightPaddle, ball);
+    }
   }
 }
 
@@ -45,25 +45,34 @@ function moveBall() {
   ball.x += ball.dx;
   ball.y += ball.dy;
 
-  // Borda superior e inferior
   if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) ball.dy *= -1;
 
-  // Colisão com as raquetes
-  if (ball.x - ball.radius < leftPaddle.x + paddleWidth &&
-      ball.y > leftPaddle.y &&
-      ball.y < leftPaddle.y + paddleHeight) {
+  if (
+    ball.x - ball.radius < leftPaddle.x + paddleWidth &&
+    ball.y > leftPaddle.y &&
+    ball.y < leftPaddle.y + paddleHeight
+  ) {
     ball.dx *= -1;
     ball.x = leftPaddle.x + paddleWidth + ball.radius;
+
+    // 🎵 TOCAR SOM
+    somColisao.currentTime = 0;
+    somColisao.play();
   }
 
-  if (ball.x + ball.radius > rightPaddle.x &&
-      ball.y > rightPaddle.y &&
-      ball.y < rightPaddle.y + paddleHeight) {
+  if (
+    ball.x + ball.radius > rightPaddle.x &&
+    ball.y > rightPaddle.y &&
+    ball.y < rightPaddle.y + paddleHeight
+  ) {
     ball.dx *= -1;
     ball.x = rightPaddle.x - ball.radius;
+
+    // 🎵 TOCAR SOM
+    somColisao.currentTime = 0;
+    somColisao.play();
   }
 
-  // Pontuação
   if (ball.x < 0) {
     rightPaddle.score++;
     resetBall();
@@ -106,8 +115,8 @@ function drawScore() {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawRoundedPaddle(leftPaddle.x, leftPaddle.y, paddleWidth, paddleHeight, 10, "#6d45c2");
-  drawRoundedPaddle(rightPaddle.x, rightPaddle.y, paddleWidth, paddleHeight, 10, "#1b3ae7");
+  drawRoundedPaddle(leftPaddle.x, leftPaddle.y, paddleWidth, paddleHeight, 10, "#31323e");
+  drawRoundedPaddle(rightPaddle.x, rightPaddle.y, paddleWidth, paddleHeight, 10, "#BFC0D1");
 
   ctx.beginPath();
   ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
@@ -146,9 +155,18 @@ function gameLoop() {
 // Modal campanha
 document.getElementById("btnCampanha").addEventListener("click", () => {
   document.getElementById("modalCampanha").classList.remove("hidden");
-  
   pauseGame();
 });
+
+function fecharCampanha() {
+  const modalCampanha = document.getElementById('modalCampanha');
+  if (modalCampanha) {
+    modalCampanha.classList.add('hidden');
+  }
+
+  document.getElementById("modo-jogo").hidden = false;
+  document.getElementById("dificuldade-bot").hidden = true;
+}
 
 function fecharModal() {
   document.getElementById("modalCampanha").classList.add("hidden");
@@ -164,7 +182,7 @@ function voltarModoJogo() {
   document.getElementById("dificuldade-bot").hidden = true;
 }
 
-// Escolher modo de jogo (PvP ou bot)
+// Escolher modo de jogo
 function escolherModo(modo) {
   gameMode = modo;
   if (modo === "playerVsBot") {
@@ -176,21 +194,27 @@ function escolherModo(modo) {
   }
 }
 
-// Escolher dificuldade e carregar script correspondente
+// Escolher dificuldade do bot e importar script
 function escolherDificuldade(dificuldade) {
   fecharModal();
   voltarModoJogo();
 
   const scriptAntigo = document.getElementById("botScript");
-  if (scriptAntigo) scriptAntigo.remove();
+  if (scriptAntigo) {
+    scriptAntigo.remove();
+  }
 
-  const script = document.createElement("script");
-  script.src = `${dificuldade}.js`; // easy.js, medium.js, hard.js
-  script.id = "botScript";
-  document.body.appendChild(script);
+  const novoScript = document.createElement("script");
+  novoScript.src = `fases/${dificuldade}.js`; // Ex: fases/easy.js
+  novoScript.id = "botScript";
 
-  reiniciarJogo();
-  startGameLoop();
+  novoScript.onload = () => {
+    reiniciarJogo();
+    gameMode = "playerVsBot";
+    startGameLoop();
+  };
+
+  document.body.appendChild(novoScript);
 }
 
 // Reinicia placar e posição
@@ -202,19 +226,58 @@ function reiniciarJogo() {
   resetBall();
 }
 
+function mostrarNiveisBot() {
+  document.getElementById('modo-jogo').hidden = true;
+  document.getElementById('dificuldade-bot').hidden = false;
+}
+
+function voltarModoJogo() {
+  document.getElementById('modo-jogo').hidden = false;
+  document.getElementById('dificuldade-bot').hidden = true;
+}
+
 function iniciarBot(dificuldade) {
-  fecharModal(); // já está em uso no botão fechar, aproveitamos
-  if (dificuldade === 'easy') {
-    const script = document.createElement('script');
-    script.src = 'easy.js';
-    document.body.appendChild(script);
-  } else if (dificuldade === 'medium') {
-    const script = document.createElement('script');
-    script.src = 'medium.js';
-    document.body.appendChild(script);
-  } else if (dificuldade === 'hard') {
-    const script = document.createElement('script');
-    script.src = 'hard.js';
-    document.body.appendChild(script);
+  fecharCampanha();
+
+  const scriptAntigo = document.getElementById("botScript");
+  if (scriptAntigo) {
+    scriptAntigo.remove();
+  }
+
+  const script = document.createElement('script');
+  script.src = `fases/${dificuldade}.js`;
+  script.id = "botScript";
+  script.onload = () => {
+    console.log(`${dificuldade}.js carregado`);
+    gameMode = "playerVsBot"; // ⚠️ precisa definir o modo aqui
+    reiniciarJogo();          // ⚠️ limpa placar e posiciona
+    startGameLoop();          // ⚠️ inicia o loop do jogo
+  };
+  script.onerror = () => console.error(`Erro ao carregar fases/${dificuldade}.js`);
+  
+  document.body.appendChild(script);
+}
+
+function sairDoJogo() {
+  if (confirm("Tem certeza que quer sair do jogo?")) {
+    // Abre o Google com uma pesquisa vazia (página inicial)
+    window.open("https://www.google.com", "_blank");
+    
+    // Se quiser abrir já com um termo pesquisado, por exemplo "ping pong":
+    // window.open("https://www.google.com/search?q=ping+pong", "_blank");
   }
 }
+
+function abrirCreditos() {
+  document.getElementById("modalCreditos").classList.remove("hidden");
+}
+
+function fecharCreditos(event) {
+  const modal = document.getElementById("modalCreditos");
+  // Fecha apenas se clicou fora do conteúdo ou no botão "X"
+  if (modalCreditos) {
+    modalCreditos.classList.add('hidden');
+  }
+}
+
+
