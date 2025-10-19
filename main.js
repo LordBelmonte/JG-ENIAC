@@ -1,84 +1,64 @@
 const canvas = document.getElementById("ping");
 const ctx = canvas.getContext("2d");
-
 canvas.width = 800;
 canvas.height = 600;
 
 // Controle de teclas
 const keysPressed = {};
-document.addEventListener("keydown", function (event) {
-  if (["ArrowUp", "ArrowDown", "w", "s"].includes(event.key)) {
-    event.preventDefault();
-  }
-  keysPressed[event.key] = true;
+document.addEventListener("keydown", (e) => {
+  if (["ArrowUp", "ArrowDown", "w", "s"].includes(e.key)) e.preventDefault();
+  keysPressed[e.key] = true;
 });
-document.addEventListener("keyup", function (event) {
-  keysPressed[event.key] = false;
-});
+document.addEventListener("keyup", (e) => keysPressed[e.key] = false);
 
 // Toggle do menu lateral
 function toggleSidebar() {
-  const sidebar = document.querySelector(".sidebar");
-  sidebar.classList.toggle("active");
+  document.querySelector(".sidebar").classList.toggle("active");
 }
 
-// Objetos do jogo
+// Elementos do jogo
 const paddleWidth = 15;
 const paddleHeight = 100;
-const leftPaddle = {
-  x: 10,
-  y: canvas.height / 2 - paddleHeight / 2,
-  speed: 6,
-  score: 0,
-};
-const rightPaddle = {
-  x: canvas.width - paddleWidth - 10,
-  y: canvas.height / 2 - paddleHeight / 2,
-  speed: 6,
-  score: 0,
-};
-const ball = {
-  x: canvas.width / 2,
-  y: canvas.height / 2,
-  radius: 8,
-  dx: 5,
-  dy: 5,
-};
+const leftPaddle = { x: 10, y: canvas.height / 2 - paddleHeight / 2, speed: 6, score: 0 };
+const rightPaddle = { x: canvas.width - paddleWidth - 10, y: canvas.height / 2 - paddleHeight / 2, speed: 6, score: 0 };
+const ball = { x: canvas.width / 2, y: canvas.height / 2, radius: 8, dx: 5, dy: 5 };
 
-// Movimento
+// Movimento das raquetes
 function movePaddles() {
-  if (keysPressed["w"] && leftPaddle.y > 0) leftPaddle.y -= leftPaddle.speed;
-  if (keysPressed["s"] && leftPaddle.y + paddleHeight < canvas.height)
-    leftPaddle.y += leftPaddle.speed;
-  if (keysPressed["ArrowUp"] && rightPaddle.y > 0)
-    rightPaddle.y -= rightPaddle.speed;
-  if (keysPressed["ArrowDown"] && rightPaddle.y + paddleHeight < canvas.height)
-    rightPaddle.y += rightPaddle.speed;
+  if (gameMode === "playerVsPlayer") {
+    if (keysPressed["w"] && leftPaddle.y > 0) leftPaddle.y -= leftPaddle.speed;
+    if (keysPressed["s"] && leftPaddle.y + paddleHeight < canvas.height) leftPaddle.y += leftPaddle.speed;
+    if (keysPressed["ArrowUp"] && rightPaddle.y > 0) rightPaddle.y -= rightPaddle.speed;
+    if (keysPressed["ArrowDown"] && rightPaddle.y + paddleHeight < canvas.height) rightPaddle.y += rightPaddle.speed;
+  } else if (gameMode === "playerVsBot") {
+    // Jogador 1
+    if (keysPressed["w"] && leftPaddle.y > 0) leftPaddle.y -= leftPaddle.speed;
+    if (keysPressed["s"] && leftPaddle.y + paddleHeight < canvas.height) leftPaddle.y += leftPaddle.speed;
+    // Bot
+    if (ball.y < rightPaddle.y + paddleHeight / 2) rightPaddle.y -= rightPaddle.speed * 0.85;
+    else if (ball.y > rightPaddle.y + paddleHeight / 2) rightPaddle.y += rightPaddle.speed * 0.85;
+  }
 }
 
+// Movimento da bola
 function moveBall() {
   ball.x += ball.dx;
   ball.y += ball.dy;
 
-  if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
-    ball.dy *= -1;
-  }
+  // Borda superior e inferior
+  if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) ball.dy *= -1;
 
-  // Colisão com raquetes
-  if (
-    ball.x - ball.radius < leftPaddle.x + paddleWidth &&
-    ball.y > leftPaddle.y &&
-    ball.y < leftPaddle.y + paddleHeight
-  ) {
+  // Colisão com as raquetes
+  if (ball.x - ball.radius < leftPaddle.x + paddleWidth &&
+      ball.y > leftPaddle.y &&
+      ball.y < leftPaddle.y + paddleHeight) {
     ball.dx *= -1;
     ball.x = leftPaddle.x + paddleWidth + ball.radius;
   }
 
-  if (
-    ball.x + ball.radius > rightPaddle.x &&
-    ball.y > rightPaddle.y &&
-    ball.y < rightPaddle.y + paddleHeight
-  ) {
+  if (ball.x + ball.radius > rightPaddle.x &&
+      ball.y > rightPaddle.y &&
+      ball.y < rightPaddle.y + paddleHeight) {
     ball.dx *= -1;
     ball.x = rightPaddle.x - ball.radius;
   }
@@ -108,12 +88,7 @@ function drawRoundedPaddle(x, y, width, height, radius, color) {
   ctx.lineTo(x + width - radius, y);
   ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
   ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(
-    x + width,
-    y + height,
-    x + width - radius,
-    y + height
-  );
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
   ctx.lineTo(x + radius, y + height);
   ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
   ctx.lineTo(x, y + radius);
@@ -126,32 +101,13 @@ function drawScore() {
   ctx.fillStyle = "#fff";
   ctx.font = "60px Arial";
   ctx.textAlign = "center";
-  ctx.fillText(
-    `${leftPaddle.score}   ✦   ${rightPaddle.score}`,
-    canvas.width / 2,
-    300
-  );
+  ctx.fillText(`${leftPaddle.score}   ✦   ${rightPaddle.score}`, canvas.width / 2, 300);
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  drawRoundedPaddle(
-    leftPaddle.x,
-    leftPaddle.y,
-    paddleWidth,
-    paddleHeight,
-    10,
-    "#6d45c2"
-  );
-  drawRoundedPaddle(
-    rightPaddle.x,
-    rightPaddle.y,
-    paddleWidth,
-    paddleHeight,
-    10,
-    "#1b3ae7"
-  );
+  drawRoundedPaddle(leftPaddle.x, leftPaddle.y, paddleWidth, paddleHeight, 10, "#6d45c2");
+  drawRoundedPaddle(rightPaddle.x, rightPaddle.y, paddleWidth, paddleHeight, 10, "#1b3ae7");
 
   ctx.beginPath();
   ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
@@ -162,11 +118,12 @@ function draw() {
   drawScore();
 }
 
-// Controle de jogo
+// Controle do jogo
 let jogoEmAndamento = false;
 let loopId;
+let gameMode = null;
 
-function startGame() {
+function startGameLoop() {
   if (!jogoEmAndamento) {
     jogoEmAndamento = true;
     loopId = requestAnimationFrame(gameLoop);
@@ -174,10 +131,8 @@ function startGame() {
 }
 
 function pauseGame() {
-  if (jogoEmAndamento) {
-    jogoEmAndamento = false;
-    cancelAnimationFrame(loopId);
-  }
+  jogoEmAndamento = false;
+  cancelAnimationFrame(loopId);
 }
 
 function gameLoop() {
@@ -188,14 +143,78 @@ function gameLoop() {
   loopId = requestAnimationFrame(gameLoop);
 }
 
-// Botão Campanha: alterna iniciar e pausar
-const campanhaBtn = document.getElementById("btnCampanha");
-campanhaBtn.addEventListener("click", () => {
-  if (jogoEmAndamento) {
-    pauseGame();
-    campanhaBtn.textContent = "Continuar";
-  } else {
-    startGame();
-    campanhaBtn.textContent = "Pausar";
-  }
+// Modal campanha
+document.getElementById("btnCampanha").addEventListener("click", () => {
+  document.getElementById("modalCampanha").classList.remove("hidden");
+  
+  pauseGame();
 });
+
+function fecharModal() {
+  document.getElementById("modalCampanha").classList.add("hidden");
+}
+
+// Mostrar/voltar níveis de bot
+function mostrarNiveisBot() {
+  document.getElementById("modo-jogo").hidden = true;
+  document.getElementById("dificuldade-bot").hidden = false;
+}
+function voltarModoJogo() {
+  document.getElementById("modo-jogo").hidden = false;
+  document.getElementById("dificuldade-bot").hidden = true;
+}
+
+// Escolher modo de jogo (PvP ou bot)
+function escolherModo(modo) {
+  gameMode = modo;
+  if (modo === "playerVsBot") {
+    mostrarNiveisBot();
+  } else {
+    fecharModal();
+    reiniciarJogo();
+    startGameLoop();
+  }
+}
+
+// Escolher dificuldade e carregar script correspondente
+function escolherDificuldade(dificuldade) {
+  fecharModal();
+  voltarModoJogo();
+
+  const scriptAntigo = document.getElementById("botScript");
+  if (scriptAntigo) scriptAntigo.remove();
+
+  const script = document.createElement("script");
+  script.src = `${dificuldade}.js`; // easy.js, medium.js, hard.js
+  script.id = "botScript";
+  document.body.appendChild(script);
+
+  reiniciarJogo();
+  startGameLoop();
+}
+
+// Reinicia placar e posição
+function reiniciarJogo() {
+  leftPaddle.score = 0;
+  rightPaddle.score = 0;
+  leftPaddle.y = canvas.height / 2 - paddleHeight / 2;
+  rightPaddle.y = canvas.height / 2 - paddleHeight / 2;
+  resetBall();
+}
+
+function iniciarBot(dificuldade) {
+  fecharModal(); // já está em uso no botão fechar, aproveitamos
+  if (dificuldade === 'easy') {
+    const script = document.createElement('script');
+    script.src = 'easy.js';
+    document.body.appendChild(script);
+  } else if (dificuldade === 'medium') {
+    const script = document.createElement('script');
+    script.src = 'medium.js';
+    document.body.appendChild(script);
+  } else if (dificuldade === 'hard') {
+    const script = document.createElement('script');
+    script.src = 'hard.js';
+    document.body.appendChild(script);
+  }
+}
